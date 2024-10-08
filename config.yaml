@@ -1,0 +1,40 @@
+default:
+  pipeline:
+    name: "pipeline_cisa_kev"
+  # https://dlthub.com/docs/dlt-ecosystem/verified-sources/rest_api/basic#source-configuration
+  client:
+    base_url: "https://www.cisa.gov"
+    # https://dlthub.com/docs/dlt-ecosystem/verified-sources/rest_api/basic#pagination
+    paginator:
+      type: single_page
+  resources:
+    - name: known_exploited_vulnerabilities
+      endpoint:
+        method: GET
+        path: sites/default/files/feeds/known_exploited_vulnerabilities.json
+        data_selector: vulnerabilities
+  models:
+    model: "models.cisa_kev.KEV"
+    parse_data_function: "models.cisa_kev.Response"
+  source:
+    name: source_cisa_kev
+  resource:
+    name: resource_cisa_kev
+  resource_defaults:
+    primary_key: cve_id
+    write_disposition:
+      disposition: merge
+      strategy: delete-insert
+
+development:
+  pipeline:
+    name: "cisa_kev_dev"
+    destination: duckdb
+    dataset_name: cisa_kev
+
+production:
+  pipeline:
+    name: "cisa_kev_prod"
+    destination: duckdb
+    dataset_name: cisa_kev
+
